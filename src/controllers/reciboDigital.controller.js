@@ -1,4 +1,5 @@
-import { insertarReciboDigitalService, obtenerReciboDigitalService } from '../services/reciboDigital.service.js';
+import { insertarReciboDigitalService, obtenerReciboDigitalService, getAllDigitalReceiptsService, buscarRecibosDigitalesService } from '../services/reciboDigital.service.js';
+
 
 export const crearReciboDigital = async (req, res) => {
     try {
@@ -49,6 +50,142 @@ export const crearReciboDigital = async (req, res) => {
         });
     }
 };
+
+
+// Actualizar el controlador existente para manejar filtros
+export const getAllDigitalReceiptsController = async (req, res) => {
+    try {
+        // Extraer filtros de query parameters
+        const filtros = {
+            fechaInicio: req.query.fechaInicio,
+            fechaFin: req.query.fechaFin,
+            idVendedor: req.query.idVendedor ? parseInt(req.query.idVendedor) : null,
+            tipoPago: req.query.tipoPago,
+            estado: req.query.estado,
+            numeroRecibo: req.query.numeroRecibo,
+            clienteNombre: req.query.clienteNombre
+        };
+        
+        // Filtrar valores null/undefined
+        const filtrosLimpios = Object.fromEntries(
+            Object.entries(filtros).filter(([_, value]) => value != null && value !== '')
+        );
+        
+        const result = await getAllDigitalReceiptsService(filtrosLimpios);
+        return res.status(200).json(result);
+    } catch (error) {
+        console.error('Error en getAllDigitalReceipts:', error);
+        return res.status(error.status || 500).json({
+            success: false,
+            message: error.message || 'Error interno del servidor'
+        });
+    }
+};
+
+// Nuevo controlador específico para búsquedas avanzadas
+export const buscarRecibosDigitales = async (req, res) => {
+    try {
+        const filtros = req.body;
+        
+        // Validar que al menos un filtro esté presente
+        const filtrosValidos = Object.values(filtros).some(value => value != null && value !== '');
+        
+        if (!filtrosValidos) {
+            return res.status(400).json({
+                success: false,
+                message: 'Debe proporcionar al menos un filtro de búsqueda'
+            });
+        }
+        
+        // Validar formato de fechas si están presentes
+        if (filtros.fechaInicio && isNaN(Date.parse(filtros.fechaInicio))) {
+            return res.status(400).json({
+                success: false,
+                message: 'Formato de fecha inválido en fechaInicio'
+            });
+        }
+        
+        if (filtros.fechaFin && isNaN(Date.parse(filtros.fechaFin))) {
+            return res.status(400).json({
+                success: false,
+                message: 'Formato de fecha inválido en fechaFin'
+            });
+        }
+        
+        const result = await buscarRecibosDigitalesService(filtros);
+        return res.status(200).json(result);
+        
+    } catch (error) {
+        console.error('Error en buscarRecibosDigitales:', error);
+        return res.status(error.status || 500).json({
+            success: false,
+            message: error.message || 'Error interno del servidor'
+        });
+    }
+};
+
+// Controlador para obtener estadísticas de recibos
+export const obtenerEstadisticasRecibos = async (req, res) => {
+    try {
+        const { fechaInicio, fechaFin, idVendedor } = req.query;
+        
+        const filtros = {
+            fechaInicio,
+            fechaFin,
+            idVendedor: idVendedor ? parseInt(idVendedor) : null
+        };
+        
+        const filtrosLimpios = Object.fromEntries(
+            Object.entries(filtros).filter(([_, value]) => value != null && value !== '')
+        );
+        
+        const result = await getAllDigitalReceiptsService(filtrosLimpios);
+        
+        // Calcular estadísticas
+        const recibos = result.data;
+        const estadisticas = {
+            totalRecibos: recibos.length,
+            montoTotal: recibos.reduce((sum, recibo) => sum + parseFloat(recibo.MontoPagado || 0), 0),
+            saldoPendienteTotal: recibos.reduce((sum, recibo) => sum + parseFloat(recibo.SaldoPendiente || 0), 0),
+            porTipoPago: {},
+            porEstado: {},
+            porVendedor: {}
+        };
+        
+        // Agrupar por tipo de pago
+        recibos.forEach(recibo => {
+            const tipo = recibo.TipoPago || 'No especificado';
+            estadisticas.porTipoPago[tipo] = (estadisticas.porTipoPago[tipo] || 0) + 1;
+        });
+        
+        // Agrupar por estado
+        recibos.forEach(recibo => {
+            const estado = recibo.EstadoPago || 'No especificado';
+            estadisticas.porEstado[estado] = (estadisticas.porEstado[estado] || 0) + 1;
+        });
+        
+        // Agrupar por vendedor
+        recibos.forEach(recibo => {
+            const vendedor = recibo.VendedorNombre || 'No especificado';
+            estadisticas.porVendedor[vendedor] = (estadisticas.porVendedor[vendedor] || 0) + 1;
+        });
+        
+        return res.status(200).json({
+            success: true,
+            data: estadisticas,
+            filtrosAplicados: filtrosLimpios,
+            message: 'Estadísticas calculadas exitosamente'
+        });
+        
+    } catch (error) {
+        console.error('Error en obtenerEstadisticasRecibos:', error);
+        return res.status(error.status || 500).json({
+            success: false,
+            message: error.message || 'Error interno del servidor'
+        });
+    }
+};
+
 
 export const obtenerReciboDigital = async (req, res) => {
     try {

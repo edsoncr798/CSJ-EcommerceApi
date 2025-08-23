@@ -106,9 +106,17 @@ export const recibirWebhookOpenpay = async (req, res) => {
   try {
     const event = req.body;
 
-    if (event.type === 'verification' && event.verification_code) {
+    // if (event.type === 'verification' && event.verification_code) {
+    //   console.log(event.verification_code);
+    //   return res.status(200).type('text/plain').send(event.verification_code);
+    // }
+
+    console.log('📦 Webhook payload completo:', JSON.stringify(event, null, 2));
+
+    if (event.type === 'verification') {
+      console.log('✅ Verificación de webhook recibida');
       console.log(event.verification_code);
-      return res.status(200).type('text/plain').send(event.verification_code);
+      return res.status(200).json({ verification_code });
     }
 
     const status = event.status || event.transaction?.status;

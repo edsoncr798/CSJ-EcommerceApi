@@ -1,7 +1,7 @@
 ﻿import sql from 'mssql';
 import { DB_DATABASE, DB_PASSWORD, DB_SERVER, DB_USER } from "../config/config.js";
 
-// Conexión principal (existente)
+// Configuraciones de conexión
 export const dbSettings = {
     user: DB_USER,
     password: DB_PASSWORD,
@@ -11,10 +11,14 @@ export const dbSettings = {
         encrypt: false,
         trustServerCertificate: true,
         enableArithAbort: true
+    },
+    pool: {
+        max: 10,
+        min: 0,
+        idleTimeoutMillis: 30000
     }
 };
 
-// Nueva conexión para la segunda base de datos
 export const dbSettings2 = {
     user: process.env.DB_USER_2,
     password: process.env.DB_PASSWORD_2,
@@ -24,32 +28,62 @@ export const dbSettings2 = {
         encrypt: false,
         trustServerCertificate: true,
         enableArithAbort: true
+    },
+    pool: {
+        max: 10,
+        min: 0,
+        idleTimeoutMillis: 30000
     }
 };
 
-// Función de conexión principal (existente)
+// Pools de conexión separados
+let mainPool = null;
+let reciboDigitalPool = null;
+
+// Función de conexión principal
 export const getConnection = async () => {
     try {
-        const pool = await sql.connect(dbSettings);
-        console.log('Conexión a la base de datos ecommere exitosa')
-
-        return pool;
+        if (!mainPool) {
+            mainPool = new sql.ConnectionPool(dbSettings);  // ← AQUÍ estaba el error
+            await mainPool.connect();
+            console.log('Conexión a la base de datos ecommerce exitosa');
+        }
+        return mainPool;
     } catch (err) {
-        console.error('Error al conectar a la base de datos ecommere', err.stack);
+        console.error('Error al conectar a la base de datos ecommerce', err.stack);
         throw err;
     }
 };
 
-// Nueva función para la segunda base de datos
-export const getConnection2 = async () => {
+// Función para la segunda base de datos
+export const getConnectionReciboDigital = async () => {
     try {
-        const pool = await sql.connect(dbSettings2);
-        console.log('Conexión a la base de datos recibodigital exitosa')
-
-        return pool;
+        if (!reciboDigitalPool) {
+            reciboDigitalPool = new sql.ConnectionPool(dbSettings2);  // ← Y aquí también
+            await reciboDigitalPool.connect();
+            console.log('Conexión a la base de datos recibodigital exitosa');
+        }
+        return reciboDigitalPool;
     } catch (err) {
         console.error('Error al conectar a la base de datos recibodigital', err.stack);
         throw err;
+    }
+};
+
+// Función para cerrar conexiones
+export const closeConnections = async () => {
+    try {
+        if (mainPool) {
+            await mainPool.close();
+            mainPool = null;
+        }
+        if (reciboDigitalPool) {
+            await reciboDigitalPool.close();
+            reciboDigitalPool = null;
+        }
+        console.log('Todas las conexiones cerradas');
+    } catch (err) {
+        console.error('Error al cerrar conexiones:', err);
     }
 };
 

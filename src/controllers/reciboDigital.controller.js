@@ -110,7 +110,7 @@ export const obtenerProximoCorrelativo = async (req, res) => {
 
 export const getCpData = async (req, res) => {
     try {
-        const { numeroComprobante } = req.params;
+        const { numero } = req.params;
         const { tipo } = req.query;
         
         // Validar y convertir el tipo de búsqueda
@@ -124,9 +124,9 @@ export const getCpData = async (req, res) => {
             });
         }
         
-        console.log(`getCpData - Número: ${numeroComprobante}, Tipo: ${tipoBusqueda}`);
+        console.log(`getCpData - Número: ${numero}, Tipo: ${tipoBusqueda}`);
         
-        const result = await getCpDataFromDb(numeroComprobante, tipoBusqueda);
+        const result = await getCpDataFromDb(numero, tipoBusqueda);
         return res.status(200).json(result);
     } catch (error) {
         console.error('Error en getCpData:', error);

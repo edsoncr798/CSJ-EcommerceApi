@@ -1,4 +1,4 @@
-import { insertarReciboDigitalService, obtenerReciboDigitalService, getAllDigitalReceiptsService, buscarRecibosDigitalesService } from '../services/reciboDigital.service.js';
+import { insertarReciboDigitalService, obtenerReciboDigitalService, getAllDigitalReceiptsService, buscarRecibosDigitalesService, obtenerProximoCorrelativoService, getCpDataFromDb, getCpDetailsFromDb, getSalesGroupService } from '../services/reciboDigital.service.js';
 
 
 export const crearReciboDigital = async (req, res) => {
@@ -9,7 +9,8 @@ export const crearReciboDigital = async (req, res) => {
         const camposRequeridos = [
             'numeroRecibo', 'numeroComprobante', 'fechaGeneracion',
             'clienteNombre','idVendedor', 'vendedorNombre', 'vendedorCodigo', 'vendedorDni',
-            'saldoTotal', 'montoPagado', 'tipoPago', 'metodoPago', 'tipoDocumento'
+            'saldoTotal', 'montoPagado', 'tipoPago', 'metodoPago', 'tipoDocumento', 'idCanal',
+            'canal', 'idGrupoVentas', 'grupoVentas'
         ];
         
         const camposFaltantes = camposRequeridos.filter(campo => !reciboData[campo]);
@@ -63,7 +64,9 @@ export const getAllDigitalReceiptsController = async (req, res) => {
             tipoPago: req.query.tipoPago,
             estado: req.query.estado,
             numeroRecibo: req.query.numeroRecibo,
-            clienteNombre: req.query.clienteNombre
+            clienteNombre: req.query.clienteNombre,
+            IdCanal: req.query.IdCanal,
+            IdGrupoVentas: req.query.IdGrupoVentas,
         };
         
         // Filtrar valores null/undefined
@@ -81,6 +84,73 @@ export const getAllDigitalReceiptsController = async (req, res) => {
         });
     }
 };
+
+// Controlador para obtener el próximo número correlativo
+export const obtenerProximoCorrelativo = async (req, res) => {
+    try {
+        const result = await obtenerProximoCorrelativoService();
+        
+        return res.status(200).json({
+            success: true,
+            message: result.message,
+            numeroCorrelativo: result.data.numeroCorrelativo
+        });
+        
+    } catch (error) {
+        console.error('Error en obtenerProximoCorrelativo:', error);
+        
+        return res.status(error.status || 500).json({
+            success: false,
+            message: error.message || 'Error al generar número correlativo',
+            numeroCorrelativo: null
+        });
+    }
+};
+
+
+export const getCpData = async (req, res) => {
+    try {
+        const { numeroComprobante } = req.params;
+        const { tipo } = req.query;
+        
+        // Validar y convertir el tipo de búsqueda
+        let tipoBusqueda = parseInt(tipo) || 1; // Por defecto tipo 1
+        
+        // Validar que el tipo sea 1 o 2
+        if (tipoBusqueda !== 1 && tipoBusqueda !== 2) {
+            return res.status(400).json({
+                success: false,
+                message: 'El parámetro tipo debe ser 1 (comprobante directo) o 2 (consolidado de carga)'
+            });
+        }
+        
+        console.log(`getCpData - Número: ${numeroComprobante}, Tipo: ${tipoBusqueda}`);
+        
+        const result = await getCpDataFromDb(numeroComprobante, tipoBusqueda);
+        return res.status(200).json(result);
+    } catch (error) {
+        console.error('Error en getCpData:', error);
+        return res.status(error.status || 500).json({
+            success: false,
+            message: error.message || 'Error al obtener los datos de la base de datos'
+        });
+    }
+}
+
+
+export const getCpDetail = async(req, res) => {
+    try{
+        const { numeroComprobante } = req.params;
+        const result = await getCpDetailsFromDb(numeroComprobante);
+        return res.status(200).json(result);
+    }catch(error){
+        console.error('Error en getCpDetail:', error);
+        return res.status(error.status || 500).json({
+            success: false,
+            message: error.message || 'Error al obtener los datos de la base de datos'
+        });
+    }
+}
 
 // Nuevo controlador específico para búsquedas avanzadas
 export const buscarRecibosDigitales = async (req, res) => {
@@ -185,6 +255,19 @@ export const obtenerEstadisticasRecibos = async (req, res) => {
         });
     }
 };
+
+export const getSalesGroup = async (req, res) => {
+    try {
+        const result = await getSalesGroupService();
+        return res.status(200).json(result);
+    } catch (error) {
+        console.error('Error en getSalesGroupController:', error);
+        return res.status(error.status || 500).json({
+            success: false,
+            message: error.message || 'Error interno del servidor'
+        });
+    }
+}
 
 
 export const obtenerReciboDigital = async (req, res) => {

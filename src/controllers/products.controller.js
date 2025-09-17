@@ -5,7 +5,8 @@ import {
     getNewProductsFromDB,
     getProductsByCategoryFromDB,
     getProductsFromDB,
-    searchProductsFromDb
+    searchProductsFromDb,
+    getRefrigeratedProductsFromDB
 } from "../services/products.service.js";
 
 
@@ -75,6 +76,21 @@ export const getEssentialProducts = async (req, res) => {
         res.status(500).json({ error: err.message });
     }
 };
+
+export const getRefrigeratedProducts = async (req, res) =>{
+    try{
+        const result = await getRefrigeratedProductsFromDB();
+        res.status(200).json({
+            message: 'Productos obtenidos',
+            data: result.recordsets
+        })
+    } catch (err){
+        console.error('Error al ejecutar el procedimiento almacenado', err.message);
+        res.status(500).json({ error: err.message });
+    } finally {
+        sql.close();
+    }
+}
 
 export  const getConfectioneryProducts = async (req, res) => {
     try{

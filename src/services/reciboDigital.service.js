@@ -1,4 +1,4 @@
-import { getConnectionReciboDigital, sql } from '../database/connection.js';
+import { getConnectionReciboDigital, getConnection, sql } from '../database/connection.js';
 
 export const insertarReciboDigitalService = async (reciboData) => {
     try {
@@ -17,6 +17,11 @@ export const insertarReciboDigitalService = async (reciboData) => {
             { name: 'vendedorNombre', type: sql.TYPES.NVarChar(255), value: reciboData.vendedorNombre },
             { name: 'vendedorCodigo', type: sql.TYPES.NVarChar(20), value: reciboData.vendedorCodigo },
             { name: 'vendedorDni', type: sql.TYPES.NVarChar(20), value: reciboData.vendedorDni },
+            { name: 'vendedorTelef', type: sql.TYPES.NVarChar(20), value: reciboData.vendedorTelef || null },
+            { name: 'idCanal' , type: sql.TYPES.Int, value: reciboData.idCanal },
+            { name: 'canal', type: sql.TYPES.NVarChar(100), value: reciboData.canal },
+            { name: 'idGrupoVentas', type: sql.TYPES.Int, value: reciboData.idGrupoVentas },
+            { name: 'grupoVentas', type: sql.TYPES.NVarChar(100), value: reciboData.grupoVentas },
             { name: 'saldoTotal', type: sql.TYPES.Decimal(18, 2), value: reciboData.saldoTotal },
             { name: 'montoPagado', type: sql.TYPES.Decimal(18, 2), value: reciboData.montoPagado },
             { name: 'tipoPago', type: sql.TYPES.NVarChar(20), value: reciboData.tipoPago },
@@ -99,6 +104,14 @@ export const getAllDigitalReceiptsService = async (filtros = {}) => {
         if (filtros.clienteNombre) {
             request.input('ClienteNombre', sql.TYPES.VarChar(255), filtros.clienteNombre);
         }
+
+        if (filtros.IdCanal) {
+            request.input('IdCanal', sql.TYPES.Int, filtros.IdCanal);
+        }
+
+        if (filtros.IdGrupoVentas) {
+            request.input('IdGrupoVentas', sql.TYPES.Int, filtros.IdGrupoVentas);
+        }
         
         // Ejecutar el stored procedure
         const result = await request.execute('sp_ObtenerRecibosDigitales');
@@ -120,6 +133,33 @@ export const getAllDigitalReceiptsService = async (filtros = {}) => {
         };
     }
 };
+
+
+export const getSalesGroupService = async () => {
+    try {
+        const pool = await getConnection();
+        const request = pool.request();
+        const result = await request.query(`
+            SELECT 
+                PKID as idGrupoVenta,
+                Nombre as nombreGrupo
+            FROM GrupoVentas
+        `);
+        return {
+            success: true,
+            data: result.recordset,
+            message: 'Grupos de venta obtenidos exitosamente'
+        };
+    } catch (error) {
+        console.error('Error en getSalesGroupService:', error);
+        throw {
+            type: 'DATABASE_ERROR',
+            message: 'Error al obtener los grupos de venta',
+            status: 500,
+            originalError: error.message
+        };
+    }
+}
 
 
 
@@ -153,6 +193,49 @@ export const obtenerReciboDigitalService = async (numeroRecibo) => {
 };
 
 
+export const getCpDataFromDb = async (numCp, tipobusqueda = 1) => {
+    try {
+        console.log('getCpDataFromDb - Parámetros:', { numCp, tipobusqueda });
+        const pool = await getConnection();
+        const request = pool.request();
+        request.input('tipobusqueda', sql.TYPES.Int, tipobusqueda);
+        request.input('numCp', sql.TYPES.NVarChar(100), numCp);
+        const result = await request.execute('Andi_MiComprobante_Buscar');
+        console.log('getCpDataFromDb - Resultado:', result.recordset.length, 'registros');
+        return result.recordset;
+    } catch (error) {
+        console.error('Error en getCpDataFromDb:', error);
+        throw {
+            type: 'DATABASE_ERROR',
+            message: 'Error al obtener los datos de la base de datos',
+            status: 500,
+            originalError: error.message
+        };
+    }
+};
+
+export const getCpDetailsFromDb = async (numCp) => {
+    try{
+        console.log('getCpDetailsFromDb - Parámetro recibido:', numCp);
+        const pool = await getConnection();
+        const request = pool.request();
+        request.input('numCp', sql.TYPES.NVarChar(20), numCp);
+
+        const result = await request.execute('MiComprobante_Detalles');
+        console.log('getCpDetailsFromDb - Resultado:', result.recordset);
+        return result.recordset;
+    }catch( error){
+        console.error('Error en getCpDetailsFromDb:', error);
+        throw {
+            type: 'DATABASE_ERROR',
+            message: 'Error al obtener los detalles del comprobante',
+            status: 500,
+            originalError: error.message
+        };
+    }
+};
+
+
 // Función específica para búsquedas con filtros avanzados
 export const buscarRecibosDigitalesService = async (filtros) => {
     try {
@@ -167,7 +250,9 @@ export const buscarRecibosDigitalesService = async (filtros) => {
             TipoPago: filtros.tipoPago || null,
             Estado: filtros.estado || null,
             NumeroRecibo: filtros.numeroRecibo || null,
-            ClienteNombre: filtros.clienteNombre || null
+            ClienteNombre: filtros.clienteNombre || null,
+            IdCanal: filtros.IdCanal || null,
+            IdGrupoVentas: filtros.IdGrupoVentas || null,
         };
         
         // Agregar parámetros al request
@@ -201,3 +286,60 @@ export const buscarRecibosDigitalesService = async (filtros) => {
         };
     }
 };
+
+// Función para obtener el próximo número correlativo
+export const obtenerProximoCorrelativoService = async () => {
+    try {
+        // Intentar conectar a la base de datos
+        const pool = await getConnectionReciboDigital();
+        const request = pool.request();
+        
+        // Obtener el último número correlativo de la base de datos
+        const query = `
+            SELECT MAX(CAST(numeroRecibo AS INT)) as ultimoNumero
+            FROM recibos
+            WHERE numeroRecibo NOT LIKE 'L%'
+        `;
+        
+        const result = await request.query(query);
+        let ultimoNumero = result.recordset[0]?.ultimoNumero || 0;
+        
+        // Incrementar para el próximo número
+        const proximoNumero = ultimoNumero + 1;
+        
+        // Formatear con ceros a la izquierda (001, 002, 003...)
+        const numeroCorrelativo = proximoNumero.toString().padStart(3, '0');
+        
+        console.log(`Próximo número correlativo generado desde BD: ${numeroCorrelativo}`);
+        
+        return {
+            success: true,
+            data: {
+                numeroCorrelativo: numeroCorrelativo
+            },
+            message: 'Número correlativo generado exitosamente'
+        };
+        
+    } catch (error) {
+        console.error('Error al conectar con la base de datos:', error);
+        
+        // Si hay cualquier error, generar un número por defecto
+        console.log('Generando número correlativo sin base de datos');
+        
+        // Generar un número basado en timestamp para que sea único
+        const timestamp = Date.now();
+        const numeroCorrelativo = (timestamp % 1000).toString().padStart(3, '0');
+        
+        console.log(`Número correlativo generado offline: ${numeroCorrelativo}`);
+        
+        return {
+            success: true,
+            data: {
+                numeroCorrelativo: numeroCorrelativo
+            },
+            message: 'Número correlativo generado exitosamente (modo offline)'
+        };
+    }
+};
+
+

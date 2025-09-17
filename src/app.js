@@ -1,4 +1,4 @@
-﻿import morgan from 'morgan';
+import morgan from 'morgan';
 import express from 'express';
 import cors from 'cors';
 // import path from "path";
@@ -22,8 +22,15 @@ app.use(cors({
     credentials: true
 }));
 
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
+// Configurar límites de payload para manejar firmas digitales (imágenes base64)
+app.use(express.urlencoded({ 
+    extended: false, 
+    limit: '50mb',
+    parameterLimit: 50000
+}));
+app.use(express.json({ 
+    limit: '50mb'
+}));
 // app.use('/productImages', express.static(path.join(__dirname, 'productImages')));
 
 //rutas
@@ -37,12 +44,33 @@ app.use('/api', openpayRouter);
 // Registrar las nuevas rutas de recibo digital
 app.use('/api', reciboDigitalRoutes);
 
-// Manejo de errores
+// Manejo de errores específicos
 app.use((err, req, res, next) => {
     console.error(err.stack);
+    
+    // Manejar error de payload demasiado grande
+    if (err.type === 'entity.too.large') {
+        return res.status(413).json({
+            success: false,
+            message: 'El archivo enviado es demasiado grande. Las firmas digitales no deben exceder 50MB.',
+            error: 'PayloadTooLargeError',
+            maxSize: '50MB'
+        });
+    }
+    
+    // Manejar otros errores de body-parser
+    if (err.type === 'entity.parse.failed') {
+        return res.status(400).json({
+            success: false,
+            message: 'Error al procesar los datos enviados. Verifique el formato de las firmas digitales.',
+            error: 'ParseError'
+        });
+    }
+    
+    // Error genérico
     res.status(500).json({
         success: false,
-        message: err.message,
+        message: err.message || 'Error interno del servidor',
     });
 });
 

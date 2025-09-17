@@ -1,13 +1,12 @@
 import app, { configureSocketIO } from "./src/app.js";
 import { PORT } from "./src/config/config.js";
-import bodyParser from "body-parser";
 import { createServer } from "http";
 // import { desactivarProductosDesdeArchivo } from "./src/desactivarProductos.js";
 // import { activarTelefonosDesdeArchivo } from "./src/activarTelefonos.js";
 // import './jobs/checkPendingPayments.js'
 // import {updateProductCategory, updateProductImages} from "./src/updateProductImages.js";
 
-app.use(bodyParser.json());
+// bodyParser ya está configurado en app.js con límites de 50MB
 
 const server = createServer(app);
 

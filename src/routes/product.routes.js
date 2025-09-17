@@ -4,13 +4,15 @@ import {
     getNewProducts,
     getProductById,
     getProductsByCategory,
-    searchProducts
+    searchProducts,
+    getRefrigeratedProducts
 } from "../controllers/products.controller.js";
 
 
 const router = Router();
 
 router.get('/products/essential', getEssentialProducts);
+router.get('/products/refrigerated', getRefrigeratedProducts);
 router.get('/products/confectionery', getConfectioneryProducts);
 router.get('/products/category', getProductsByCategory);
 router.get('/products/new', getNewProducts);

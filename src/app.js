@@ -9,6 +9,7 @@ import documentRouter from './routes/document.routes.js';
 import orderRouter from './routes/order.routes.js';
 import openpayRouter from './routes/openpay.routes.js';
 import reciboDigitalRoutes from './routes/reciboDigital.routes.js';
+import cobranzaRouter from './routes/cobranza.routes.js';
 // import { Server } from 'http';
 import { Server }  from 'socket.io';
 
@@ -43,6 +44,9 @@ app.use('/api', openpayRouter);
 
 // Registrar las nuevas rutas de recibo digital
 app.use('/api', reciboDigitalRoutes);
+
+// Registrar las rutas de cobranza
+app.use('/api', cobranzaRouter);
 
 // Manejo de errores específicos
 app.use((err, req, res, next) => {

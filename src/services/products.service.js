@@ -36,6 +36,18 @@ export const getEssentialProductsFromDB = async () => {
     }
 };
 
+export const getStockProductFromDB = async() =>{
+    let pool;
+    try{
+        pool = await getConnection();
+        const result = pool.request();
+        return result.execute('MARKET_listarStockProducto');
+    } catch(error){
+        console.error('Error al ejecutar el procedimiento almacenado:', error);
+        throw error;
+    }
+}
+
 export const getRefrigeratedProductsFromDB = async () =>{
     let pool;
     try{

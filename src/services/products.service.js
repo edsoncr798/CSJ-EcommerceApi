@@ -36,13 +36,19 @@ export const getEssentialProductsFromDB = async () => {
     }
 };
 
-export const getStockProductFromDB = async() =>{
+export const getStockProductFromDB = async (idProducto = null) => {
     let pool;
-    try{
+    try {
         pool = await getConnection();
         const result = pool.request();
+        
+        // Si se proporciona idProducto, agregarlo como parámetro
+        if (idProducto !== null) {
+            result.input('IdProducto', sql.TYPES.Int, idProducto);
+        }
+        
         return result.execute('MARKET_listarStockProducto');
-    } catch(error){
+    } catch (error) {
         console.error('Error al ejecutar el procedimiento almacenado:', error);
         throw error;
     }

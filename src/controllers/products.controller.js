@@ -28,7 +28,9 @@ export const getAllProducts = async (req, res) => {
 
 export const getAllStockProducts = async (req, res) => {
     try{
-        const result = await getStockProductFromDB();
+        // Obtener idProducto de la query string (opcional)
+        const idProducto = req.query.idProducto ? parseInt(req.query.idProducto) : null;
+        const result = await getStockProductFromDB(idProducto);
         res.status(200).json({
             message: 'Productos obtenidos',
             data: result.recordsets

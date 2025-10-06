@@ -29,10 +29,21 @@ export const agregarItemCargoCobranzaService = async (itemData) => {
             .input('idTipoMedioPago', sql.Int, parseInt(idTipoMedioPago))
             .execute('Cobranza_ItemCargoCobranza');
 
+        // Actualizar el Total del CargoCobranza sumando el nuevo monto
+        await pool.request()
+            .input('idCargoCobranza', sql.Int, parseInt(idCargoCobranza))
+            .query(`UPDATE CargoCobranza SET Total = ISNULL(Total, 0) + ${parseFloat(montoCobrado)} WHERE PKID = @idCargoCobranza`);
+
+        // Obtener el cargo actualizado para devolverlo si se requiere
+        const cargoUpdated = await pool.request()
+            .input('idCargoCobranza', sql.Int, parseInt(idCargoCobranza))
+            .query('SELECT * FROM CargoCobranza WHERE PKID = @idCargoCobranza');
+
         return {
             success: true,
             data: result.recordset[0],
-            message: 'Item agregado exitosamente'
+            cargo: cargoUpdated.recordset && cargoUpdated.recordset[0] ? cargoUpdated.recordset[0] : null,
+            message: 'Item agregado exitosamente y Total actualizado'
         };
     } catch (error) {
         console.error('Error en agregarItemCargoCobranzaService:', error.message);

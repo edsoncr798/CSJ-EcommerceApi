@@ -54,6 +54,20 @@ export const getStockProductFromDB = async (idProducto = null) => {
     }
 }
 
+
+export const getProductsWholeSalePricesFromDB = async ( idProducto) => {
+    let pool;
+    try {
+        pool = await getConnection();
+        const result = pool.request();
+        result.input('IdProducto', sql.TYPES.Int, idProducto);
+        return result.execute('MARKET_ListarProductoMinorista');
+    } catch (error) {
+        console.error('Error al ejecutar el procedimiento almacenado:', error);
+        throw error;
+    }
+};
+
 export const getRefrigeratedProductsFromDB = async () =>{
     let pool;
     try{

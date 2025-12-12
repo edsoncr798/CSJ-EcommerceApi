@@ -7,7 +7,8 @@ import {
     getProductsFromDB,
     searchProductsFromDb,
     getRefrigeratedProductsFromDB,
-    getStockProductFromDB
+    getStockProductFromDB,
+    getProductsWholeSalePricesFromDB
 } from "../services/products.service.js";
 
 
@@ -33,6 +34,22 @@ export const getAllStockProducts = async (req, res) => {
         const result = await getStockProductFromDB(idProducto);
         res.status(200).json({
             message: 'Productos obtenidos',
+            data: result.recordsets
+        })
+    } catch (err){
+        console.error('Error al ejecutar el procedimiento almacenado', err.message);
+        res.status(500).json({ error: err.message });
+    } finally {
+        sql.close();
+    }
+}
+
+export const getProductsWholeSalePrices = async (req, res) => {
+    try{
+        const idProducto = parseInt(req.params.idProducto);
+        const result = await getProductsWholeSalePricesFromDB(idProducto);
+        res.status(200).json({
+            message: 'Precios obtenidos',
             data: result.recordsets
         })
     } catch (err){

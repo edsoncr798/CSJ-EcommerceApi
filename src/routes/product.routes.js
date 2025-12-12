@@ -6,7 +6,8 @@ import {
     getProductsByCategory,
     searchProducts,
     getRefrigeratedProducts,
-    getAllStockProducts
+    getAllStockProducts,
+    getProductsWholeSalePrices
 } from "../controllers/products.controller.js";
 
 
@@ -19,6 +20,7 @@ router.get('/products/category', getProductsByCategory);
 router.get('/products/new', getNewProducts);
 router.get('/products/stock', getAllStockProducts);
 router.get('/products/search', searchProducts);
+router.get('/products/wholesale/:idProducto', getProductsWholeSalePrices);
 
 router.get('/products', getAllProducts);
 router.get('/products/:id', getProductById);

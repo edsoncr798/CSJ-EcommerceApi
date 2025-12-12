@@ -1,7 +1,7 @@
 import app, { configureSocketIO } from "./src/app.js";
 import { PORT } from "./src/config/config.js";
 import { createServer } from "http";
-// import { desactivarProductosDesdeArchivo } from "./src/desactivarProductos.js";
+import { desactivarProductosDesdeArchivo } from "./src/desactivarProductos.js";
 // import { activarTelefonosDesdeArchivo } from "./src/activarTelefonos.js";
 // import './jobs/checkPendingPayments.js'
 // import {updateProductCategory, updateProductImages} from "./src/updateProductImages.js";
@@ -31,3 +31,4 @@ server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });
 
+ 

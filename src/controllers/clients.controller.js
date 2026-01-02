@@ -113,6 +113,8 @@ export const RucRegistration = async(req, res) => {
             DocIdentidad,
             Direccion1,
             Distrito1,
+            TelefonoGeneral,
+            email
         } = req.body;     
         
         //verificar si el ruc ya existe
@@ -135,11 +137,11 @@ export const RucRegistration = async(req, res) => {
             p_ApellidoMaterno: '',
             p_PrimerNombre: '',
             p_SegundoNombre: '',
-            p_Email: '',
+            p_Email: email,
             p_DocIdentidad: DocIdentidad,
             p_Direccion1: Direccion1?.toUpperCase(),
             p_Distrito1: Distrito1,
-            p_TelefonoGeneral: ''
+            p_TelefonoGeneral: TelefonoGeneral
         };
 
         await insertClientService(data);
@@ -147,6 +149,7 @@ export const RucRegistration = async(req, res) => {
         //obtener los datos del cliente recien creado
         const newClient = await getRucClientService(DocIdentidad);
 
+        console.log(newClient)
         return res.status(201).json({
             success: true,
             message: 'cliente registrado existosamente',

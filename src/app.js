@@ -10,6 +10,10 @@ import orderRouter from './routes/order.routes.js';
 import openpayRouter from './routes/openpay.routes.js';
 import reciboDigitalRoutes from './routes/reciboDigital.routes.js';
 import cobranzaRouter from './routes/cobranza.routes.js';
+import userConteoRouter from './conteoDiario/routes/user.routes.js';
+import detalleOrdenCompraRouter from './conteoDiario/routes/detalleOrdenCompra.routes.js';
+import conteoRouter from './conteoDiario/routes/conteo.routes.js';
+
 // import { Server } from 'http';
 import { Server }  from 'socket.io';
 
@@ -47,6 +51,11 @@ app.use('/api', reciboDigitalRoutes);
 
 // Registrar las rutas de cobranza
 app.use('/api', cobranzaRouter);
+
+// Registrar rutas de conteo diario
+app.use('/api', userConteoRouter);
+app.use('/api', detalleOrdenCompraRouter);
+app.use('/api', conteoRouter);
 
 // Manejo de errores específicos
 app.use((err, req, res, next) => {

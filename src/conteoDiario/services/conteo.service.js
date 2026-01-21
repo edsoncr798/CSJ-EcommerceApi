@@ -167,7 +167,13 @@ export const guardarControlAlmacen = async (idUsuario, numeroOrdenCompra, nombre
         // Asumimos que la primera columna es ID y la segunda Serie
         const values = Object.values(row);
         
-        idOrdenCompra = values[0];
+        // Asegurar que idOrdenCompra sea un entero válido
+        idOrdenCompra = parseInt(values[0]);
+        
+        if (isNaN(idOrdenCompra)) {
+             throw new Error("El ID de orden de compra retornado no es un número válido: " + values[0]);
+        }
+
         const serie = values[1];
         
         const nuevaOrdenCompra = {
@@ -236,7 +242,7 @@ export const guardarItemControlAlmacen = async (lDetalleOrdenCompra, idControlAl
 
 export const mostrarIngresosTerminados = async (almacen, fecha) => {
     try {
-        const pool = await getConnection();
+        const pool = await getConnectionMeteloRapido();
         const request = pool.request();
 
         // Reemplazar '-' por '/' como en el código C#

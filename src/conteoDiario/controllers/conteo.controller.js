@@ -2,6 +2,7 @@ import { finalizarIngresoAlmacen, guardarControlAlmacen, mostrarIngresosTerminad
 
 export const saveControlAlmacen = async (req, res) => {
     try {
+        console.log("Datos recibidos en saveControlAlmacen:", req.body);
         const { idUsuario, numeroOrdenCompra, nombreProveedor, facturaProveedor, guiaTransportista, Almacen, jsonDetalleControlAlma } = req.body;
 
         if (!idUsuario || !numeroOrdenCompra || !Almacen || !jsonDetalleControlAlma) {

@@ -1,4 +1,4 @@
-import { getConnectionCsjDistribucion, getConnectionMeteloRapido, sql } from '../../database/connection.js';
+import { getConnectionMeteloRapido, getConnectionCsjDistribucion, sql } from '../../database/connection.js';
 import { obtener_detalle_Guardado } from './detalleOrdenCompra.service.js';
 
 export const eliminarControlAlmacen = async (id) => {
@@ -53,20 +53,20 @@ export const actualizarItemControlAlmacen = async (idControlAlmacen, jsonDetalle
                 request.input('codigoProducto', sql.VarChar, tmp.Codigo);
                 request.input('codigoEAN', sql.VarChar, tmp.CodigoEAN);
                 request.input('descripcionProducto', sql.VarChar, tmp.Descripcion);
-                request.input('cantidad', sql.Int, tmp.CantidadBase);
+                request.input('cantidad', sql.Int, tmp.CantidadBase); // Asumiendo int por C#
                 request.input('factor', sql.Int, tmp.Factor);
                 request.input('unidadMin', sql.VarChar, tmp.Unidad);
                 request.input('unidadRef', sql.VarChar, tmp.UnidadRef);
                 request.input('observacion', sql.VarChar, tmp.Observacion);
                 request.input('fechaVencimiento', sql.VarChar, tmp.FechaVencimiento);
                 request.input('lote', sql.VarChar, tmp.Lote);
-                request.input('revisado', sql.Bit, tmp.Revisado);
+                request.input('revisado', sql.Bit, tmp.Revisado); // bool en C# -> Bit en SQL
                 request.input('cantidadProveedor', sql.Int, tmp.CantidadProveedor);
             } else {
                 spName = 'ActualizarItemControlAlmacen';
                 request.input('idControlAlmacen', sql.Int, idControlAlmacen);
                 request.input('codigoProducto', sql.VarChar, tmp.Codigo);
-                request.input('condigoEAN', sql.VarChar, tmp.CodigoEAN);
+                request.input('condigoEAN', sql.VarChar, tmp.CodigoEAN); // Ojo con el typo "condigoEAN" si es así en el SP original
                 request.input('descripcionProducto', sql.VarChar, tmp.Descripcion);
                 request.input('cantidad', sql.Int, tmp.CantidadBase);
                 request.input('observacion', sql.VarChar, tmp.Observacion);
@@ -123,6 +123,8 @@ export const finalizarIngresoAlmacen = async (idControlAlmacen, observacion, rev
         const result = await request.execute('FinalizarControlAlmacen');
         
         // rowsAffected retorna un array con el número de filas afectadas por cada sentencia en el SP
+        // Verificamos si alguna sentencia afectó filas (mayor a 0)
+        // Equivalente a: if (fIngreso == 1)
         const filasAfectadas = result.rowsAffected.reduce((a, b) => a + b, 0);
 
         if (filasAfectadas > 0) {
@@ -132,6 +134,7 @@ export const finalizarIngresoAlmacen = async (idControlAlmacen, observacion, rev
         }
     } catch (error) {
         // En caso de error, intentamos eliminar el control de almacén como rollback
+        // Equivalente a: eliminarControlAlmacen(idControlAlmacen);
         try {
             await eliminarControlAlmacen(idControlAlmacen);
         } catch (rollbackError) {

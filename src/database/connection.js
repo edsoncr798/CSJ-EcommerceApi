@@ -25,10 +25,10 @@ export const dbSettings = {
 };
 
 export const dbSettings2 = {
-    user: process.env.DB_USER_2,
-    password: process.env.DB_PASSWORD_2,
-    server: process.env.DB_SERVER_2,
-    database: process.env.DB_DATABASE_2,
+    user: DB_USER_2,
+    password: DB_PASSWORD_2,
+    server: DB_SERVER_2,
+    database: DB_DATABASE_2,
     options: {
         encrypt: false,
         trustServerCertificate: true,
@@ -43,10 +43,10 @@ export const dbSettings2 = {
 
 // Configuraciones de conexión para la tercera base de datos
 export const dbSettings3 = {
-    user: process.env.DB_USER_3,
-    password: process.env.DB_PASSWORD_3,
-    server: process.env.DB_SERVER_3,
-    database: process.env.DB_DATABASE_3,
+    user: DB_USER_3,
+    password: DB_PASSWORD_3,
+    server: DB_SERVER_3,
+    database: DB_DATABASE_3,
     options: {
         encrypt: false,
         trustServerCertificate: true,

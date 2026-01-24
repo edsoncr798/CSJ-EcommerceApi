@@ -1,5 +1,10 @@
 ﻿import sql from 'mssql';
-import { DB_DATABASE, DB_PASSWORD, DB_SERVER, DB_USER } from "../config/config.js";
+import {
+    DB_DATABASE, DB_PASSWORD, DB_SERVER, DB_USER,
+    DB_DATABASE_2, DB_PASSWORD_2, DB_SERVER_2, DB_USER_2,
+    DB_DATABASE_3, DB_PASSWORD_3, DB_SERVER_3, DB_USER_3,
+    DB_DATABASE_4, DB_PASSWORD_4, DB_SERVER_4, DB_USER_4
+} from "../config/config.js";
 
 // Configuraciones de conexión
 export const dbSettings = {
@@ -56,10 +61,10 @@ export const dbSettings3 = {
 
 // Configuraciones de conexión para la cuarta base de datos
 export const dbSettings4 = {
-    user: process.env.DB_USER_4,
-    password: process.env.DB_PASSWORD_4,
-    server: process.env.DB_SERVER_4,
-    database: process.env.DB_DATABASE_4,
+    user: DB_USER_4,
+    password: DB_PASSWORD_4,
+    server: DB_SERVER_4,
+    database: DB_DATABASE_4,
     options: {
         encrypt: false,
         trustServerCertificate: true,

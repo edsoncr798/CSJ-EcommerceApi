@@ -26,3 +26,15 @@ export const DB_USER_4 = process.env.DB_USER_4 || "master";
 export const DB_PASSWORD_4 = process.env.DB_PASSWORD_4 || "yourStrong#Password";
 export const DB_SERVER_4 = process.env.DB_SERVER_4 || "localhost";
 export const DB_DATABASE_4 = process.env.DB_DATABASE_4 || "webstore";
+
+// quinta base de datos
+export const DB_USER_5 = process.env.DB_USER_5 || "master";
+export const DB_PASSWORD_5 = process.env.DB_PASSWORD_5 || "yourStrong#Password";
+export const DB_SERVER_5 = process.env.DB_SERVER_5 || "localhost";
+export const DB_DATABASE_5 = process.env.DB_DATABASE_5 || "webstore";
+
+// sexta base de datos
+export const DB_USER_6 = process.env.DB_USER_6 || "master";
+export const DB_PASSWORD_6 = process.env.DB_PASSWORD_6 || "yourStrong#Password";
+export const DB_SERVER_6 = process.env.DB_SERVER_6 || "localhost";
+export const DB_DATABASE_6 = process.env.DB_DATABASE_6 || "webstore";

@@ -14,6 +14,12 @@ import userConteoRouter from './conteoDiario/routes/user.routes.js';
 import detalleOrdenCompraRouter from './conteoDiario/routes/detalleOrdenCompra.routes.js';
 import conteoRouter from './conteoDiario/routes/conteo.routes.js';
 
+// Importar rutas del módulo inmovil
+import inmovilProductoRouter from './inmovil/routes/producto.routes.js';
+import inmovilResponsableRouter from './inmovil/routes/responsable.routes.js';
+import inmovilConteoRouter from './inmovil/routes/conteo.routes.js';
+import inmovilVentasRouter from './inmovil/routes/ventas.routes.js';
+
 // import { Server } from 'http';
 import { Server }  from 'socket.io';
 
@@ -56,6 +62,12 @@ app.use('/api', cobranzaRouter);
 app.use('/api', userConteoRouter);
 app.use('/api', detalleOrdenCompraRouter);
 app.use('/api', conteoRouter);
+
+// Registrar rutas del módulo inmovil
+app.use('/api/producto', inmovilProductoRouter);
+app.use('/api/responsable', inmovilResponsableRouter);
+app.use('/api/conteo', inmovilConteoRouter);
+app.use('/api/VentasSanJuan', inmovilVentasRouter);
 
 // Manejo de errores específicos
 app.use((err, req, res, next) => {

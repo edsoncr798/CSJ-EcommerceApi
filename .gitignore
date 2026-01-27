@@ -1,6 +1,7 @@
 .env
 
 node_modules
+api-inmovil.net
 .vercel
 
 src/config/firebase-service-account.json

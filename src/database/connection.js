@@ -3,7 +3,9 @@ import {
     DB_DATABASE, DB_PASSWORD, DB_SERVER, DB_USER,
     DB_DATABASE_2, DB_PASSWORD_2, DB_SERVER_2, DB_USER_2,
     DB_DATABASE_3, DB_PASSWORD_3, DB_SERVER_3, DB_USER_3,
-    DB_DATABASE_4, DB_PASSWORD_4, DB_SERVER_4, DB_USER_4
+    DB_DATABASE_4, DB_PASSWORD_4, DB_SERVER_4, DB_USER_4,
+    DB_DATABASE_5, DB_PASSWORD_5, DB_SERVER_5, DB_USER_5,
+    DB_DATABASE_6, DB_PASSWORD_6, DB_SERVER_6, DB_USER_6
 } from "../config/config.js";
 
 // Configuraciones de conexión
@@ -77,11 +79,53 @@ export const dbSettings4 = {
     }
 };
 
+// Configuraciones de conexión para la quinta base de datos
+export const dbSettings5 = {
+    user: DB_USER_5,
+    password: DB_PASSWORD_5,
+    server: DB_SERVER_5,
+    database: DB_DATABASE_5,
+    options: {
+        encrypt: false,
+        trustServerCertificate: true,
+        enableArithAbort: true
+    },
+    pool: {
+        max: 10,
+        min: 0,
+        idleTimeoutMillis: 30000
+    }
+};
+
+// Configuraciones de conexión para la sexta base de datos
+export const dbSettings6 = {
+    user: DB_USER_6,
+    password: DB_PASSWORD_6,
+    server: DB_SERVER_6,
+    database: DB_DATABASE_6,
+    options: {
+        encrypt: false,
+        trustServerCertificate: true,
+        enableArithAbort: true
+    },
+    pool: {
+        max: 10,
+        min: 0,
+        idleTimeoutMillis: 30000
+    }
+};
+
+
+
 // Pools de conexión separados
 let mainPool = null;
 let reciboDigitalPool = null;
 let csjDistribucionPool = null;
 let meteloRapidoPool = null;
+let inMovilPool = null;
+let conteoDiarioPool = null;
+
+
 
 // Función de conexión principal
 export const getConnection = async () => {
@@ -143,6 +187,36 @@ export const getConnectionMeteloRapido = async () => {
     }
 };
 
+// Función para la quinta base de datos
+export const getConnectionInMovil = async () => {
+    try {
+        if (!inMovilPool) {
+            inMovilPool = new sql.ConnectionPool(dbSettings5);
+            await inMovilPool.connect();
+            console.log('Conexión a la base de datos inmovil exitosa');
+        }
+        return inMovilPool;
+    } catch (err) {
+        console.error('Error al conectar a la base de datos inmovil', err.stack);
+        throw err;
+    }
+};
+
+// Función para la sexta base de datos
+export const getConnectionConteoDiario = async () => {
+    try {
+        if (!conteoDiarioPool) {
+            conteoDiarioPool = new sql.ConnectionPool(dbSettings6);
+            await conteoDiarioPool.connect();
+            console.log('Conexión a la base de datos conteodiario exitosa');
+        }
+        return conteoDiarioPool;
+    } catch (err) {
+        console.error('Error al conectar a la base de datos conteodiario', err.stack);
+        throw err;
+    }
+};
+
 
 
 // Función para cerrar conexiones
@@ -163,6 +237,14 @@ export const closeConnections = async () => {
         if (meteloRapidoPool) {
             await meteloRapidoPool.close();
             meteloRapidoPool = null;
+        }
+        if (inMovilPool) {
+            await inMovilPool.close();
+            inMovilPool = null;
+        }
+        if (conteoDiarioPool) {
+            await conteoDiarioPool.close();
+            conteoDiarioPool = null;
         }
         console.log('Todas las conexiones cerradas');
     } catch (err) {

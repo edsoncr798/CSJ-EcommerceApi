@@ -18,13 +18,13 @@ export { io };
 // activarTelefonosDesdeArchivo('./data/codigosPersona.txt')
 
 // Ejecutar la función de desactivar productos
-// desactivarProductosDesdeArchivo('./data/codigoProducto.txt', 58)
-//     .then(resultado => {
-//         console.log('Desactivación completada:', resultado);
-//     })
-//     .catch(error => {
-//         console.error('Error en desactivación:', error);
-//     });
+/*desactivarProductosDesdeArchivo('./data/codigoProducto.txt', 58)
+    .then(resultado => {
+        console.log('Desactivación completada:', resultado);
+    })
+    .catch(error => {
+        console.error('Error en desactivación:', error);
+    });*/
 
 
 server.listen(PORT, () => {

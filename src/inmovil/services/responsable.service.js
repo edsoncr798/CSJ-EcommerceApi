@@ -16,7 +16,7 @@ export const listarResponsables = async (listaInvent) => {
 
 export const validarResponsables = async (NombreResponsable, DocResponsable, Codigo, listaInventario, nombreDispositivo, CodVersion) => {
     try {
-        const pool = await getConnection();
+        const pool = await getConnectionCsjDistribucion();
         const result = await pool.request()
             .input("NombreResponsable", sql.VarChar, NombreResponsable)
             .input("DocResponsable", sql.VarChar, DocResponsable)

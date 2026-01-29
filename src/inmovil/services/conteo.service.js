@@ -64,8 +64,8 @@ export const guardarResultados = async (conteoNuevo) => {
                 .input("perteneceLista", sql.Bit, item.perteneceLista)
                 .input("almacen", sql.VarChar, almacen)
                 .input("fecha", sql.DateTime, new Date())
-                .query(`INSERT INTO resultados (listaInventario, tipoResponsable, nombreResponsable, codigoProducto, nombreProducto, unidadMin, unidadBase, parcial, cantidadTotal, factor, fecha, perteneceLista, almacen) 
-                        VALUES (@listaInventario, @tipoResponsable, @nombreResponsable, @codigoProducto, @nombreProducto, @unidadMin, @unidadBase, @parcial, @cantidadTotal, @factor, @fecha, @perteneceLista, @almacen)`);
+                .query(`INSERT INTO resultados (listaInventario, tipoResponsable, nombreResponsable, codigoProducto, nombreProducto, unidadMin, unidadBase, parcial, cantidadTotal, factor, fecha, perteneceLista, almacen, anulado) 
+                        VALUES (@listaInventario, @tipoResponsable, @nombreResponsable, @codigoProducto, @nombreProducto, @unidadMin, @unidadBase, @parcial, @cantidadTotal, @factor, @fecha, @perteneceLista, @almacen, 0)`);
         }
 
         return { Exito: true, Mensaje: "Guardado exitoso" };
